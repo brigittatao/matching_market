@@ -1,0 +1,484 @@
+---
+title: "Proportion_Studies_0510"
+author: "Lan Tao"
+date: "2023-04-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE, echo=TRUE}
+library(mosaic)
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(haven)
+library(readxl)
+library(gtable)
+require(gridExtra)
+library(wesanderson)
+```
+
+
+## This is the without priority version
+
+
+## Greedy Algorithm 
+```{r}
+#function of greedy algorithm
+greedy<-function(pool,m,pa,T,p1,p2,pr = 1){
+  # pool: the initial pool, default setting is empty
+  # m: the Poisson rate at which agents arrive at the market
+  # pa: the proportion of vA in newly arriving agents
+  # pb = 1-pa: the proportion of vB in newly arriving agents
+  # T: the number of periods
+  # p1: the matching probability between the same type of agents (vA − vA or vB − vB)
+  # p2: the matching probability between different types of agents (vA − vB)
+  # pr: perishing rate for each agent
+  
+  # initializing
+  pool_A<-filter(pool,type=="A")
+  pool_B<-filter(pool,type=="B")
+  num_A<-vector(length=T)
+  num_A[1]<-nrow(pool_A)
+  num_B<-vector(length=T)
+  num_B[1]<-nrow(pool_B)
+  num_perishing<-vector(length=T)  #the number of perishing agents by time t
+  num_perishing[1]<-0
+  whole_pool_size<-vector(length=T)
+  whole_pool_size[1]=nrow(pool)
+  
+  
+  for (t in 2:T){
+    ##new agents coming
+    pool$perishing_time<-pool$perishing_time-1
+    new<-rpois(1,m)   #the number of new coming agents during [t,t+1]
+    whole_pool_size[t]<-whole_pool_size[t-1]
+    
+    if (new!=0){
+      new_ind<-c(1:new)
+      new_type<-sample(c("A","B"),new,replace=TRUE,prob = c(pa,1-pa)) 
+      arriving_time<-rep(t,new)   
+      new_perishing_time<-rpois(new,pr)
+      newcoming<-data.frame(arriving_time,new_ind,new_type,new_perishing_time)
+      newcoming$id<-paste(newcoming$arriving_time,newcoming$new_ind,sep='&')
+      colnames(newcoming)<-colnames(pool)
+      whole_pool_size[t]<-whole_pool_size[t-1] + new
+      
+      ##agents matching
+    for (i in 1:new){
+      pool_A<-filter(pool,type=="A")
+      pool_B<-filter(pool,type=="B")
+      if (newcoming[i,3]=="A"){
+        s_A<-sample(c(0,1),size=nrow(pool_A),replace=TRUE, prob=c(1-p1,p1))
+        s_B<-sample(c(0,1),size=nrow(pool_B),replace=TRUE, prob=c(1-p2,p2))
+        if (sum(which(s_A==1))==0 & sum(which(s_B==1))==0){
+          #this means there are no possible matchings in the pool for this new coming agent, then we add the newcoming agent to the pool
+          pool<-rbind(pool,newcoming[i,])
+        }else{
+          #this means there are possible matchings in the pool for this new coming agent, then we remove the matched agent out of pool
+          possible_matching<-rbind(pool_A[which(s_A==1),],pool_B[which(s_B==1),])
+          matching_agent<-sample(possible_matching,1)
+          pool<-pool[!pool$id==matching_agent$id,]
+        }
+      }else {
+        s_A<-sample(c(0,1),size=nrow(pool_A),replace=TRUE, prob=c(1-p2,p2))
+        s_B<-sample(c(0,1),size=nrow(pool_B),replace=TRUE, prob=c(1-p1,p1))
+        if (sum(which(s_A==1))==0 & sum(which(s_B==1))==0){
+          #this means there are no possible matchings in the pool for this new coming agent, then we add the newcoming agent to the pool
+          pool<-rbind(pool,newcoming[i,])
+        }else{
+          #this means there are possible matchings in the pool for this new coming agent, then we remove the matched agent out of pool
+          possible_matching<-rbind(pool_A[which(s_A==1),],pool_B[which(s_B==1),])
+          matching_agent<-sample(possible_matching,1)
+          pool<-pool[!pool$id==matching_agent$id,]
+        }
+      }  
+    }
+      
+    }
+    ##agents departing
+    num_perishing[t]<-nrow(filter(pool,perishing_time==0))+num_perishing[t-1]
+    pool<-pool[!pool$perishing_time==0,]
+    pool_A<-filter(pool,type=="A")
+    num_A[t]<-nrow(pool_A)
+    pool_B<-filter(pool,type=="B")
+    num_B[t]<-nrow(pool_B)
+  }
+  num_pool<-num_A+num_B
+  loss<-num_perishing/whole_pool_size
+  num<-data.frame(num_pool,num_A,num_B,loss)
+  num$prop = num_A/num_B   #the proportion of v_A to v_B
+  return(num)
+}
+```
+
+
+## Patient Algorithm
+```{r}
+#function of patient algorithm
+
+patient<-function(pool,m,pa,T,p1,p2,pr = 1){
+  # pool: the initial pool, default setting is empty
+  # m: the Poisson rate at which agents arrive at the market
+  # pa: the proportion of vA in newly arriving agents
+  # pb = 1-pa: the proportion of vB in newly arriving agents
+  # T: the number of periods
+  # p1: the matching probability between the same type of agents (vA − vA or vB − vB)
+  # p2: the matching probability between different types of agents (vA − vB)
+  # pr: perishing rate for each agent
+  
+  # initializing
+  pool_A<-filter(pool,type=="A")
+  pool_B<-filter(pool,type=="B")
+  num_A<-vector(length=T)
+  num_A[1]<-nrow(pool_A)
+  num_B<-vector(length=T)
+  num_B[1]<-nrow(pool_B)
+  num_perishing<-vector(length=T)  #the number of perishing agents by time t
+  num_perishing[1]<-0
+  whole_pool_size<-vector(length=T)
+  whole_pool_size[1]=nrow(pool)
+  
+for (t in 2:T){
+  ##new agents coming
+  pool$perishing_time<-pool$perishing_time-1
+  new<-rpois(1,m)   #the number of new coming agents during [t,t+1]
+  whole_pool_size[t]<-whole_pool_size[t-1]
+  if (new != 0){
+    new_ind<-c(1:new)
+    new_type<-sample(c("A","B"),new,replace=TRUE,prob = c(pa,1-pa)) 
+    arriving_time<-rep(t,new)   
+    new_perishing_time<-rpois(new,pr)
+    newcoming<-data.frame(arriving_time,new_ind,new_type,new_perishing_time)
+    newcoming$id<-paste(newcoming$arriving_time,newcoming$new_ind,sep='&')
+    colnames(newcoming)<-colnames(pool)
+    pool<-rbind(pool,newcoming)
+    whole_pool_size[t]<-whole_pool_size[t-1]+new
+  }
+  
+  ##agents matching and perishing
+  critical<-filter(pool,perishing_time==0)
+  num_perishing[t]= num_perishing[t-1]
+  if (nrow(critical) !=0){
+      for (i in 1:nrow(critical)){
+    pool_A<-filter(pool,type=="A")
+    pool_B<-filter(pool,type=="B")
+    if (critical[i,3] =="A"){
+      s_A<-sample(c(0,1),size=nrow(pool_A),replace=TRUE, prob=c(1-p1,p1))
+      s_B<-sample(c(0,1),size=nrow(pool_B),replace=TRUE, prob=c(1-p2,p2))
+      if (sum(which(s_A==1))==0 & sum(which(s_B==1))==0){
+        #this means there are no possible matchings in the pool for this new coming agent, then the agent departs.
+        pool<-pool[!pool$id==critical[i,5],]
+        num_perishing[t]=num_perishing[t]+1
+      }else{
+        #this means there are possible matchings in the pool for this new coming agent, then we remove both matched agents out of pool
+        possible_matching<-rbind(pool_A[which(s_A==1),],pool_B[which(s_B==1),])
+        matching_agent<-sample(possible_matching,1)
+        pool<-pool[!pool$id==matching_agent$id,]
+        pool<-pool[!pool$id==critical[i,5],]
+      }
+    }else {
+      s_A<-sample(c(0,1),size=nrow(pool_A),replace=TRUE, prob=c(1-p2,p2))
+      s_B<-sample(c(0,1),size=nrow(pool_B),replace=TRUE, prob=c(1-p1,p1))
+      if (sum(which(s_A==1))==0 & sum(which(s_B==1))==0){
+        #this means there are no possible matchings in the pool for this new coming agent, then the agent departs.
+        pool<-pool[!pool$id==critical[i,5],]
+        num_perishing[t]=num_perishing[t]+1
+      }else{
+        #this means there are possible matchings in the pool for this new coming agent, then we remove both matched agents out of pool
+        possible_matching<-rbind(pool_A[which(s_A==1),],pool_B[which(s_B==1),])
+        matching_agent<-sample(possible_matching,1)
+        pool<-pool[!pool$id==matching_agent$id,]
+        pool<-pool[!pool$id==critical[i,5],]
+      }
+    }
+  }
+  }
+  pool_A<-filter(pool,type=="A")
+  num_A[t]<-nrow(pool_A)
+  pool_B<-filter(pool,type=="B")
+  num_B[t]<-nrow(pool_B)
+}
+  num_pool<-num_A+num_B
+  loss<-num_perishing/whole_pool_size
+  num<-data.frame(num_pool,num_A,num_B,loss)
+  num$prop = num_A/num_B  # the proportion of v_A to v_B
+  return(num)
+}
+```
+
+
+```{r Initialization}
+#we can use id (ind and arriving time) to distinguish agents
+# initializing
+# default setting is empty set
+  pr = 1
+  ind<-vector(length=0)
+  type<-rep(c("A","B"),0)
+  arriving_time<-rep(1,0)
+  perishing_time<-rpois(0,pr) + 1
+  pool_initial<-data.frame(arriving_time,ind,type,perishing_time)
+  pool_initial$id<-paste(pool_initial$arriving_time,pool_initial$ind,sep='&')
+  T=1000   # the number of periods
+  pool_initial
+    
+```
+
+
+# Part 1: Changing variable - m
+
+## Simulation - market size m = 30 
+
+```{r}
+T=1000   # the number of periods
+
+set.seed(927)
+num_greedy_05_m30_pr2_11<-greedy(pool_initial,m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+num_patient_05_m30_pr2_11<-patient(pool_initial,m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m30_pr2_12<-greedy(pool_initial,m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+num_patient_05_m30_pr2_12<-patient(pool_initial,m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m30_pr2_13<-greedy(pool_initial,m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+num_patient_05_m30_pr2_13<-patient(pool_initial,m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m30_pr2_14<-greedy(pool_initial,m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+num_patient_05_m30_pr2_14<-patient(pool_initial,m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+```
+
+
+
+## Simulation - market size m = 50 
+
+```{r}
+T=1000   # the number of periods
+
+set.seed(927)
+num_greedy_05_m50_pr2_11<-greedy(pool_initial,m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+num_patient_05_m50_pr2_11<-patient(pool_initial,m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m50_pr2_12<-greedy(pool_initial,m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+num_patient_05_m50_pr2_12<-patient(pool_initial,m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m50_pr2_13<-greedy(pool_initial,m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+num_patient_05_m50_pr2_13<-patient(pool_initial,m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m50_pr2_14<-greedy(pool_initial,m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+num_patient_05_m50_pr2_14<-patient(pool_initial,m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+```
+
+
+## Simulation - market size m = 70 
+
+```{r}
+T=1000   # the number of periods
+
+set.seed(927)
+num_greedy_05_m70_pr2_11<-greedy(pool_initial,m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+num_patient_05_m70_pr2_11<-patient(pool_initial,m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m70_pr2_12<-greedy(pool_initial,m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+num_patient_05_m70_pr2_12<-patient(pool_initial,m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m70_pr2_13<-greedy(pool_initial,m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+num_patient_05_m70_pr2_13<-patient(pool_initial,m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m70_pr2_14<-greedy(pool_initial,m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+num_patient_05_m70_pr2_14<-patient(pool_initial,m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+```
+
+
+## Simulation - market size m = 100 
+
+```{r}
+T=1000   # the number of periods
+
+set.seed(927)
+num_greedy_05_m100_pr2_11<-greedy(pool_initial,m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+num_patient_05_m100_pr2_11<-patient(pool_initial,m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m100_pr2_12<-greedy(pool_initial,m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+num_patient_05_m100_pr2_12<-patient(pool_initial,m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m100_pr2_13<-greedy(pool_initial,m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+num_patient_05_m100_pr2_13<-patient(pool_initial,m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2)
+
+set.seed(927)
+num_greedy_05_m100_pr2_14<-greedy(pool_initial,m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+num_patient_05_m100_pr2_14<-patient(pool_initial,m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2)
+```
+
+
+
+## save the simulation data
+
+```{r}
+
+write_xlsx(as.data.frame(num_greedy_05_m30_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_11.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m30_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_11.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m30_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_12.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m30_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_12.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m30_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_13.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m30_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_13.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m30_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_14.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m30_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_14.xlsx")
+
+
+#-----------------------------------------------------------------------------
+
+write_xlsx(as.data.frame(num_greedy_05_m50_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_11.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m50_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_11.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m50_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_12.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m50_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_12.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m50_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_13.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m50_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_13.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m50_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_14.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m50_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_14.xlsx")
+
+#-----------------------------------------------------------------------------
+
+write_xlsx(as.data.frame(num_greedy_05_m70_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_11.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m70_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_11.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m70_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_12.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m70_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_12.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m70_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_13.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m70_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_13.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m70_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_14.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m70_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_14.xlsx")
+
+#-----------------------------------------------------------------------------
+
+write_xlsx(as.data.frame(num_greedy_05_m100_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_11.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m100_pr2_11),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_11.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m100_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_12.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m100_pr2_12),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_12.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m100_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_13.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m100_pr2_13),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_13.xlsx")
+
+write_xlsx(as.data.frame(num_greedy_05_m100_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_14.xlsx")
+write_xlsx(as.data.frame(num_patient_05_m100_pr2_14),path="/Users/brigitta/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_14.xlsx")
+
+```
+
+
+
+
+
+
+# Draft
+# -----------------------------------------------------------------------
+
+
+## plot the loss  
+
+```{r}
+#------------------------------------------------
+T=1000
+
+p1<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) + 
+  geom_point(data=num_greedy_05_m30_pr2_11,col="red",size=0.1) + 
+  geom_point(data=num_patient_05_m30_pr2_11,col="blue",size=0.1) +
+  ylim(0.15,0.25)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p2<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_12,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_12,col="blue",size=0.1) +
+  xlab("Time period")+
+  #ylim(-0.01,0.01)+
+  labs(title = "m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p3<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_13,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_13,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p4<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_14,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_14,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw()
+
+grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2 )
+```
+
+
+
+## plot the distribution of proportion  
+
+### Greedy algorithm plot
+
+```{r}
+ggplot(num_greedy_05_m30_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m30_pr2_11,size=0.1) + 
+  xlab("Time period")+
+  labs(title = "Greedy - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+```
+
+
+### Patient algorithm plot
+
+```{r}
+ggplot(num_patient_05_m30_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m30_pr2_11,size=0.1) + 
+  xlab("Time period")+
+  labs(title = "Patient - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+```
+
+
+
+
+

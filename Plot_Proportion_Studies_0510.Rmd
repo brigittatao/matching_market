@@ -1,0 +1,848 @@
+---
+title: "Plot_Proportion_Studies_0510"
+author: "Lan Tao"
+date: "2023-05-12"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE, echo=TRUE}
+library(mosaic)
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(haven)
+library(readxl)
+library(gtable)
+require(gridExtra)
+library(wesanderson)
+```
+
+
+## read data
+
+```{r}
+
+num_greedy_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_11.xlsx")
+num_patient_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_11.xlsx")
+
+num_greedy_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_12.xlsx")
+num_patient_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_12.xlsx")
+
+num_greedy_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_13.xlsx")
+num_patient_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_13.xlsx")
+
+num_greedy_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_14.xlsx")
+num_patient_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_11.xlsx")
+num_patient_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_11.xlsx")
+
+num_greedy_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_12.xlsx")
+num_patient_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_12.xlsx")
+
+num_greedy_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_13.xlsx")
+num_patient_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_13.xlsx")
+
+num_greedy_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_14.xlsx")
+num_patient_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_11.xlsx")
+num_patient_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_11.xlsx")
+
+num_greedy_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_12.xlsx")
+num_patient_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_12.xlsx")
+
+num_greedy_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_13.xlsx")
+num_patient_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_13.xlsx")
+
+num_greedy_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_14.xlsx")
+num_patient_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_14.xlsx")
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_11.xlsx")
+num_patient_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_11.xlsx")
+
+num_greedy_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_12.xlsx")
+num_patient_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_12.xlsx")
+
+num_greedy_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_13.xlsx")
+num_patient_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_13.xlsx")
+
+num_greedy_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_14.xlsx")
+num_patient_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_14.xlsx")
+
+
+```
+
+
+
+## Part 1 - plot the loss  
+ 
+###  Market size m = 30 
+```{r}
+#------------------------------------------------
+T=1000
+
+p1<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) + 
+  geom_point(data=num_greedy_05_m30_pr2_11,col="red",size=0.1) + 
+  geom_point(data=num_patient_05_m30_pr2_11,col="blue",size=0.1) +
+  ylim(0.15,0.25)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p2<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_12,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_12,col="blue",size=0.1) +
+  xlab("Time period")+
+  #ylim(-0.01,0.01)+
+  labs(title = "m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p3<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_13,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_13,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p4<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m30_pr2_14,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m30_pr2_14,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw()
+
+grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2 )
+```
+
+###  Market size m = 50 
+
+```{r}
+#------------------------------------------------
+T=1000
+
+p1<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) + 
+  geom_point(data=num_greedy_05_m50_pr2_11,col="red",size=0.1) + 
+  geom_point(data=num_patient_05_m50_pr2_11,col="blue",size=0.1) +
+  #ylim(0.15,0.25)+
+  xlab("Time period")+
+  labs(title = "m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p2<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m50_pr2_12,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m50_pr2_12,col="blue",size=0.1) +
+  xlab("Time period")+
+  #ylim(-0.01,0.01)+
+  labs(title = "m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p3<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m50_pr2_13,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m50_pr2_13,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p4<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m50_pr2_14,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m50_pr2_14,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw()
+
+grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2 )
+```
+
+
+###  Market size m = 70 
+
+```{r}
+#------------------------------------------------
+T=1000
+
+p1<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) + 
+  geom_point(data=num_greedy_05_m70_pr2_11,col="red",size=0.1) + 
+  geom_point(data=num_patient_05_m70_pr2_11,col="blue",size=0.1) +
+  #ylim(0.15,0.25)+
+  xlab("Time period")+
+  labs(title = "m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p2<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m70_pr2_12,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m70_pr2_12,col="blue",size=0.1) +
+  xlab("Time period")+
+  #ylim(-0.01,0.01)+
+  labs(title = "m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p3<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m70_pr2_13,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m70_pr2_13,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p4<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m70_pr2_14,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m70_pr2_14,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw()
+
+grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2 )
+```
+
+
+###  Market size m = 100 
+
+```{r}
+#------------------------------------------------
+T=1000
+
+p1<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) + 
+  geom_point(data=num_greedy_05_m100_pr2_11,col="red",size=0.1) + 
+  geom_point(data=num_patient_05_m100_pr2_11,col="blue",size=0.1) +
+  #ylim(0.15,0.25)+
+  xlab("Time period")+
+  labs(title = "m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p2<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m100_pr2_12,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m100_pr2_12,col="blue",size=0.1) +
+  xlab("Time period")+
+  #ylim(-0.01,0.01)+
+  labs(title = "m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p3<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m100_pr2_13,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m100_pr2_13,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw()
+
+#------------------------------------------------
+p4<-ggplot(data = NULL, aes(x = c(1:T), y = loss)) +
+  geom_point(data=num_greedy_05_m100_pr2_14,col="red",size=0.1) +
+  geom_point(data=num_patient_05_m100_pr2_14,col="blue",size=0.1) +
+  #ylim(-0.01,0.01)+
+  xlab("Time period")+
+  labs(title = "m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw()
+
+grid.arrange(p1,p2,p3,p4,nrow=2,ncol=2 )
+```
+
+
+
+
+#-----------------------------------------------------------------------------------------
+
+## Part 2 - plot the distribution of proportion  
+
+### 2.1 Greedy algorithm plot
+
+#### 2.1.1 market size m = 30
+
+```{r}
+p1 <- ggplot(num_greedy_05_m30_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m30_pr2_11,size=0.1) + 
+  ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_greedy_05_m30_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m30_pr2_12,size=0.1) + 
+  ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_greedy_05_m30_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m30_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  ylim(0,6)+
+  labs(title = "Greedy - m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_greedy_05_m30_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m30_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  labs(title = "Greedy - m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p6,p8,nrow=3,ncol=2 )
+
+```
+
+
+#### 2.1.2 market size m = 50
+
+```{r}
+p1 <- ggplot(num_greedy_05_m50_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m50_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_greedy_05_m50_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m50_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_greedy_05_m50_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m50_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Greedy - m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_greedy_05_m50_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m50_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Greedy - m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p6,p8,nrow=3,ncol=2 )
+
+```
+
+
+
+#### 2.1.3 market size m = 70
+
+```{r}
+p1 <- ggplot(num_greedy_05_m70_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m70_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_greedy_05_m70_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m70_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_greedy_05_m70_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m70_pr2_13,size=0.1) + 
+  ylab("prop")+
+  xlab("Time period")+
+  labs(title = "Greedy - m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_greedy_05_m70_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m70_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Greedy - m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p6,p8,nrow=3,ncol=2 )
+
+```
+
+
+#### 2.1.4 market size m = 100
+
+```{r}
+p1 <- ggplot(num_greedy_05_m100_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_greedy_05_m100_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Greedy - m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_greedy_05_m100_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m100_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  ylab("prop")+
+  xlab("Time period")+
+  labs(title = "Greedy - m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_greedy_05_m100_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m100_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Greedy - m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_greedy_05_m100_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Greedy - m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_greedy_05_m100_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Greedy - m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p6,p8,nrow=2,ncol=2 )
+
+```
+
+
+
+### 2.2 Patient algorithm plot
+
+#### 2.2.1 market size m = 30
+
+```{r}
+p1 <- ggplot(num_patient_05_m30_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m30_pr2_11,size=0.1) + 
+  ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Patient - m=30,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_patient_05_m30_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m30_pr2_12,size=0.1) + 
+  ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Patient - m=30,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_patient_05_m30_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m30_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  ylim(0,6)+
+  labs(title = "Patient - m=30,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_patient_05_m30_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m30_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  labs(title = "Patient - m=30,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=4,ncol=2 )
+
+```
+
+
+
+#### 2.2.2 market size m = 50
+
+```{r}
+p1 <- ggplot(num_patient_05_m50_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m50_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Patient - m=50,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_patient_05_m50_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m50_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Patient - m=50,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_patient_05_m50_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m50_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Patient - m=50,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_patient_05_m50_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m50_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Patient - m=50,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=4,ncol=2 )
+
+```
+
+
+
+#### 2.2.3 market size m = 70
+
+```{r}
+p1 <- ggplot(num_patient_05_m70_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m70_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Patient - m=70,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_patient_05_m70_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m70_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  xlab("Time period")+
+  labs(title = "Patient - m=70,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_patient_05_m70_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m70_pr2_13,size=0.1) + 
+  ylab("prop")+
+  xlab("Time period")+
+  labs(title = "Patient - m=70,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_patient_05_m70_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m70_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Patient - m=70,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=4,ncol=2 )
+
+```
+
+
+
+#### 2.2.4 market size m = 100
+
+```{r}
+p1 <- ggplot(num_patient_05_m100_pr2_11[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2")+
+ theme_bw()
+
+p2 <- ggplot(data = NULL, aes(x = c(1:T), y = prop)) + 
+  geom_point(data=num_patient_05_m100_pr2_11,size=0.1) + 
+  #ylim(0,4)+
+  xlab("Time period")+
+  labs(title = "Patient - m=100,pa=0.5,T,p1=0.03,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p3 <- ggplot(num_patient_05_m100_pr2_12[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2")+
+ theme_bw()
+
+p4 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m100_pr2_12,size=0.1) + 
+  #ylim(0,5)+
+  ylab("prop")+
+  xlab("Time period")+
+  labs(title = "Patient - m=100,pa=0.5,T,p1=0.05,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p5 <- ggplot(num_patient_05_m100_pr2_13[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2")+
+ theme_bw()
+
+p6 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m100_pr2_13,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Patient - m=100,pa=0.5,T,p1=0.1,p2=0.01,pr=2") +
+  theme_bw() 
+
+#-------------------------------------------------------------------------------
+
+p7 <- ggplot(num_patient_05_m100_pr2_14[800:1000,], aes(x=prop)) + 
+ geom_histogram(aes(y=..density..), colour="black", fill="white")+
+ geom_density(alpha=.2, fill="#FF6666")+
+ labs(title = "Patient - m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2")+
+ theme_bw()
+
+p8 <- ggplot(data = NULL, aes(x = c(1:T), y = as.double(prop))) + 
+  geom_point(data=num_patient_05_m100_pr2_14,size=0.1) + 
+  xlab("Time period")+
+  ylab("prop")+
+  labs(title = "Patient - m=100,pa=0.5,T,p1=0.8,p2=0.01,pr=2") +
+  theme_bw() 
+
+
+grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,nrow=4,ncol=2)
+
+```
+
+
+
+
+## -----------------------------------------------------------------------
+## Draft
+
+
+
