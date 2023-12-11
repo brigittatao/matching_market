@@ -1,0 +1,951 @@
+---
+title: "Fit_Test_Proportion_Studies"
+author: "Lan Tao"
+date: "2023-12-05"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE, echo=TRUE}
+library(mosaic)
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(haven)
+library(readxl)
+
+# library(cli)
+library(cmstatr)
+library(EnvStats)
+library(ddst)
+```
+
+
+## read simulation data
+```{r reading-data, include=FALSE}
+
+num_greedy_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_11.xlsx")
+num_patient_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_11.xlsx")
+
+num_greedy_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_12.xlsx")
+num_patient_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_12.xlsx")
+
+num_greedy_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_13.xlsx")
+num_patient_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_13.xlsx")
+
+num_greedy_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_14.xlsx")
+num_patient_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_11.xlsx")
+num_patient_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_11.xlsx")
+
+num_greedy_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_12.xlsx")
+num_patient_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_12.xlsx")
+
+num_greedy_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_13.xlsx")
+num_patient_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_13.xlsx")
+
+num_greedy_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_14.xlsx")
+num_patient_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_11.xlsx")
+num_patient_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_11.xlsx")
+
+num_greedy_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_12.xlsx")
+num_patient_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_12.xlsx")
+
+num_greedy_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_13.xlsx")
+num_patient_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_13.xlsx")
+
+num_greedy_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_14.xlsx")
+num_patient_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_14.xlsx")
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_11.xlsx")
+num_patient_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_11.xlsx")
+
+num_greedy_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_12.xlsx")
+num_patient_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_12.xlsx")
+
+num_greedy_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_13.xlsx")
+num_patient_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_13.xlsx")
+
+num_greedy_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_14.xlsx")
+num_patient_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_11.xlsx")
+num_patient_06_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_11.xlsx")
+
+num_greedy_06_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_12.xlsx")
+num_patient_06_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_12.xlsx")
+
+num_greedy_06_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_13.xlsx")
+num_patient_06_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_13.xlsx")
+
+num_greedy_06_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_14.xlsx")
+num_patient_06_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_11.xlsx")
+num_patient_06_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_11.xlsx")
+
+num_greedy_06_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_12.xlsx")
+num_patient_06_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_12.xlsx")
+
+num_greedy_06_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_13.xlsx")
+num_patient_06_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_13.xlsx")
+
+num_greedy_06_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_14.xlsx")
+num_patient_06_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_14.xlsx")
+
+```
+
+## update data
+```{r update-data-func, include=FALSE}
+# write a function to update the data frame s.t. s=min{n_A/n_B, n_B/n_A}
+
+update_dta<-function(dta){
+  new_dta<-dta
+  new_dta$prop_2<-new_dta$num_B/new_dta$num_A
+  prop_s<-apply(new_dta[,5:6],1,min)
+  new_dta$prop_s<-as.double(prop_s)
+  new_dta
+}
+
+```
+
+```{r updating-data, include=FALSE}
+
+num_greedy_05_m30_pr2_11<-update_dta(num_greedy_05_m30_pr2_11)
+num_patient_05_m30_pr2_11<-update_dta(num_patient_05_m30_pr2_11)
+
+num_greedy_05_m30_pr2_12<-update_dta(num_greedy_05_m30_pr2_12)
+num_patient_05_m30_pr2_12<-update_dta(num_patient_05_m30_pr2_12)
+
+num_greedy_05_m30_pr2_13<-update_dta(num_greedy_05_m30_pr2_13)
+num_patient_05_m30_pr2_13<-update_dta(num_patient_05_m30_pr2_13)
+
+num_greedy_05_m30_pr2_14<-update_dta(num_greedy_05_m30_pr2_14)
+num_patient_05_m30_pr2_14<-update_dta(num_patient_05_m30_pr2_14)
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m50_pr2_11<-update_dta(num_greedy_05_m50_pr2_11)
+num_patient_05_m50_pr2_11<-update_dta(num_patient_05_m50_pr2_11)
+
+num_greedy_05_m50_pr2_12<-update_dta(num_greedy_05_m50_pr2_12)
+num_patient_05_m50_pr2_12<-update_dta(num_patient_05_m50_pr2_12)
+
+num_greedy_05_m50_pr2_13<-update_dta(num_greedy_05_m50_pr2_13)
+num_patient_05_m50_pr2_13<-update_dta(num_patient_05_m50_pr2_13)
+
+num_greedy_05_m50_pr2_14<-update_dta(num_greedy_05_m50_pr2_14)
+num_patient_05_m50_pr2_14<-update_dta(num_patient_05_m50_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m70_pr2_11<-update_dta(num_greedy_05_m70_pr2_11)
+num_patient_05_m70_pr2_11<-update_dta(num_patient_05_m70_pr2_11)
+
+num_greedy_05_m70_pr2_12<-update_dta(num_greedy_05_m70_pr2_12)
+num_patient_05_m70_pr2_12<-update_dta(num_patient_05_m70_pr2_12)
+
+num_greedy_05_m70_pr2_13<-update_dta(num_greedy_05_m70_pr2_13)
+num_patient_05_m70_pr2_13<-update_dta(num_patient_05_m70_pr2_13)
+
+num_greedy_05_m70_pr2_14<-update_dta(num_greedy_05_m70_pr2_14)
+num_patient_05_m70_pr2_14<-update_dta(num_patient_05_m70_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m100_pr2_11<-update_dta(num_greedy_05_m100_pr2_11)
+num_patient_05_m100_pr2_11<-update_dta(num_patient_05_m100_pr2_11)
+
+num_greedy_05_m100_pr2_12<-update_dta(num_greedy_05_m100_pr2_12)
+num_patient_05_m100_pr2_12<-update_dta(num_patient_05_m100_pr2_12)
+
+num_greedy_05_m100_pr2_13<-update_dta(num_greedy_05_m100_pr2_13)
+num_patient_05_m100_pr2_13<-update_dta(num_patient_05_m100_pr2_13)
+
+num_greedy_05_m100_pr2_14<-update_dta(num_greedy_05_m100_pr2_14)
+num_patient_05_m100_pr2_14<-update_dta(num_patient_05_m100_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m30_pr2_11<-update_dta(num_greedy_06_m30_pr2_11)
+num_patient_06_m30_pr2_11<-update_dta(num_patient_06_m30_pr2_11)
+
+num_greedy_06_m30_pr2_12<-update_dta(num_greedy_06_m30_pr2_12)
+num_patient_06_m30_pr2_12<-update_dta(num_patient_06_m30_pr2_12)
+
+num_greedy_06_m30_pr2_13<-update_dta(num_greedy_06_m30_pr2_13)
+num_patient_06_m30_pr2_13<-update_dta(num_patient_06_m30_pr2_13)
+
+num_greedy_06_m30_pr2_14<-update_dta(num_greedy_06_m30_pr2_14)
+num_patient_06_m30_pr2_14<-update_dta(num_patient_06_m30_pr2_14)
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m50_pr2_11<-update_dta(num_greedy_06_m50_pr2_11)
+num_patient_06_m50_pr2_11<-update_dta(num_patient_06_m50_pr2_11)
+
+num_greedy_06_m50_pr2_12<-update_dta(num_greedy_06_m50_pr2_12)
+num_patient_06_m50_pr2_12<-update_dta(num_patient_06_m50_pr2_12)
+
+num_greedy_06_m50_pr2_13<-update_dta(num_greedy_06_m50_pr2_13)
+num_patient_06_m50_pr2_13<-update_dta(num_patient_06_m50_pr2_13)
+
+num_greedy_06_m50_pr2_14<-update_dta(num_greedy_06_m50_pr2_14)
+num_patient_06_m50_pr2_14<-update_dta(num_patient_06_m50_pr2_14)
+
+```
+
+```{r helper-func}
+## helper function
+visual <- function(dataset, alpha, beta){
+  x <- seq(0,1,by=0.001)
+  fitted_val <- dbeta(x, shape1=alpha, shape2=beta)
+  fitted_data <- data.frame(x, fitted_val)
+  g <- ggplot(dataset, aes(x=prop_s)) +
+    geom_histogram(aes(y=..density..), colour="black", fill="white")+
+    geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+    geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue", size=0.1, show.legend = TRUE)+
+    # labs(title = "Patient - m=100, p1=0.03, p2=0.01")+
+    theme_bw()
+  return(g)
+}
+
+# g <- visual(num_patient_05_m100_pr2_11[501:1000, ], alpha_star, beta_star)
+# g + labs(title = "Patient - m=100, p1=0.03, p2=0.01")
+```
+
+
+## Hypothesis test
+$$
+H_0: \text{ Beta CDF (s) is following unif(0,1)} \\
+H_0: \text{ Beta CDF (s) is not following unif(0,1)}
+$$
+
+
+
+##
+```{r test, include=FALSE}
+z = rexp(80,4)
+ddst.exp.test(z, compute.p = TRUE)
+
+z = rbeta(80, shape1 = 7.6, shape2 = 1.2)
+# histogram(z)
+ddst.exp.test(z, compute.p = TRUE)
+```
+
+
+```{r example, include=FALSE}
+# example
+# Patient m=100, pa=0.5, p1=0.03, p2=0.01, pr=2
+data <- num_patient_05_m100_pr2_11$prop_s[501:1000]
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x, shape1=alpha_star, shape2=beta_star)
+
+fitted_data <- data.frame(x, fitted_val)
+
+ggplot(num_patient_05_m100_pr2_11[501:1000, ], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=100,p1=0.03,p2=0.01")+
+  theme_bw()
+
+
+# construct the empirical distribution
+# Bootstrap sampling
+M <- 1000  # the number of bootstrap
+alpha_emp <- numeric(M)
+beta_emp <- numeric(M)
+T_emp <- numeric(M)
+
+set.seed(156)
+for (i in 1:M) {
+  boot_s <- rbeta(n, shape1 = alpha_star, shape2 = beta_star)
+  par_emp <- ebeta(boot_s, method = "mle") 
+  alpha_emp[i] <- as.numeric(par_emp$parameters[1])
+  beta_emp[i] <- as.numeric(par_emp$parameters[2]) 
+  cdf <- numeric(n)
+  for (j in 1:n) {
+    s <- boot_s[j]
+    cdf[j] <- (pbeta(s, shape1 = alpha_emp[i], shape2 = beta_emp[i]))
+  }
+  T_emp[i] <- sum(cdf)/n
+}
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+histogram(T_emp)
+
+# the observed statistics
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+T_obs <- sum(cdf_obs)/n
+print(paste("The observed statistics is", T_obs)) 
+
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+```
+
+
+## Data from Patient algorithm
+### Patient - group 11 (m=70, pa=0.5, p1=0.03, p2=0.01, pr=2)
+```{r}
+# Patient m=70, pa=0.5, p1=0.03, p2=0.01, pr=2
+dataset <- num_patient_05_m70_pr2_11[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=70, p1=0.03, p2=0.01")
+
+```
+
+
+### Patient - group 12 (m=70, pa=0.5, p1=0.05, p2=0.01, pr=2)
+```{r}
+# Patient m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+dataset <- num_patient_05_m70_pr2_12[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=70, p1=0.05, p2=0.01")
+
+```
+
+
+### Patient - group 13 (m=70, pa=0.5, p1=0.1, p2=0.01, pr=2)
+```{r}
+# Patient m=70, pa=0.5, p1=0.1, p2=0.01, pr=2
+dataset <- num_patient_05_m70_pr2_13[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=70, p1=0.1, p2=0.01")
+
+```
+
+
+
+### Patient - group 14 (m=70, pa=0.5, p1=0.8, p2=0.01, pr=2)
+```{r}
+# Patient m=70, pa=0.5, p1=0.8, p2=0.01, pr=2
+dataset <- num_patient_05_m70_pr2_14[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=70, p1=0.8, p2=0.01")
+
+```
+
+
+
+
+
+
+### Patient - group 21 (m=100, pa=0.5, p1=0.03, p2=0.01, pr=2)
+```{r}
+# Patient m=100, pa=0.5, p1=0.03, p2=0.01, pr=2
+dataset <- num_patient_05_m100_pr2_11[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=100, p1=0.03, p2=0.01")
+
+```
+
+
+
+### Patient - group 22 (m=100, pa=0.5, p1=0.05, p2=0.01, pr=2)
+```{r}
+# Patient m=100, pa=0.5, p1=0.05, p2=0.01, pr=2
+dataset <- num_patient_05_m100_pr2_12[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+# chi_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+  # chi_obs[i] <- -2*log(cdf_obs[i])
+}
+
+histogram(cdf_obs)
+# histogram(chi_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=100, p1=0.05, p2=0.01")
+
+```
+
+
+
+### Patient - group 23 (m=100, pa=0.5, p1=0.1, p2=0.01, pr=2)
+```{r}
+# Patient m=100, pa=0.5, p1=0.1, p2=0.01, pr=2
+dataset <- num_patient_05_m100_pr2_13[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=100, p1=0.1, p2=0.01")
+
+```
+
+
+
+
+### Patient - group 24 (m=100, pa=0.5, p1=0.8, p2=0.01, pr=2)
+```{r}
+# Patient m=100, pa=0.5, p1=0.8, p2=0.01, pr=2
+dataset <- num_patient_05_m100_pr2_14[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Patient - m=100, p1=0.8, p2=0.01")
+
+```
+
+
+
+## Data from Greedy algorithm
+
+### Remark: We guess the goodness of fit test would not be good from the visual inspection
+
+### Greedy - group 11 (m=70, pa=0.5, p1=0.03, p2=0.01, pr=2)
+```{r}
+# Greedy m=70, pa=0.5, p1=0.03, p2=0.01, pr=2
+dataset <- num_greedy_05_m70_pr2_11[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=70, p1=0.03, p2=0.01")
+
+```
+
+### Greedy - group 12 (m=70, pa=0.5, p1=0.05, p2=0.01, pr=2)
+```{r}
+# Greedy m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+dataset <- num_greedy_05_m70_pr2_12[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=70, p1=0.05, p2=0.01")
+```
+
+### Greedy - group 13 (m=70, pa=0.5, p1=0.1, p2=0.01, pr=2)
+
+#### warning: there are inf values in this situation
+```{r}
+# Greedy m=70, pa=0.5, p1=0.1, p2=0.01, pr=2
+dataset <- num_greedy_05_m70_pr2_13[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=70, p1=0.1, p2=0.01")
+```
+### Greedy - group 14 (m=70, pa=0.5, p1=0.8, p2=0.01, pr=2)
+
+#### warning: there are inf values in this situation; apparently the distribution of s concentrated on $\{0, 0.5, 1\}$.
+```{r}
+# Greedy m=70, pa=0.5, p1=0.8, p2=0.01, pr=2
+dataset <- num_greedy_05_m70_pr2_14[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+# ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=70, p1=0.8, p2=0.01")
+```
+
+
+
+### Greedy - group 21 (m=100, pa=0.5, p1=0.03, p2=0.01, pr=2)
+```{r}
+# Greedy m=100, pa=0.5, p1=0.03, p2=0.01, pr=2
+dataset <- num_greedy_05_m100_pr2_11[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=100, p1=0.03, p2=0.01")
+
+```
+
+
+### Greedy - group 22 (m=100, pa=0.5, p1=0.05, p2=0.01, pr=2)
+```{r}
+# Greedy m=100, pa=0.5, p1=0.05, p2=0.01, pr=2
+dataset <- num_greedy_05_m100_pr2_12[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=100, p1=0.05, p2=0.01")
+
+```
+
+
+
+### Greedy - group 23 (m=100, pa=0.5, p1=0.1, p2=0.01, pr=2)
+#### warning: there are inf values in this situation
+```{r}
+# Greedy m=100, pa=0.5, p1=0.1, p2=0.01, pr=2
+dataset <- num_greedy_05_m100_pr2_13[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- pbeta(s, shape1 = alpha_star, shape2 = beta_star)
+}
+
+histogram(cdf_obs)
+ddst.uniform.test(cdf_obs, compute.p = TRUE)
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=100, p1=0.1, p2=0.01")
+
+```
+
+
+### Greedy - group 24 (m=100, pa=0.5, p1=0.8, p2=0.01, pr=2)
+#### warning: there are inf values in this situation
+```{r}
+# Greedy m=100, pa=0.5, p1=0.8, p2=0.01, pr=2
+dataset <- num_greedy_05_m100_pr2_14[501:1000,]
+data <- dataset$prop_s
+n <- length(data)
+eff_n <- sum(!is.na(data)) # the number of non-na elements
+print(paste("The number of non-na elements is",eff_n)) 
+
+par <- ebeta(data, method = "mle") # the warning may come from the fact that several values = 1
+# ebeta(data[500:1000], method = "mme")
+alpha_star <- as.numeric(par$parameters[1])
+beta_star <- as.numeric(par$parameters[2])
+print(paste("The mle estimator for alpha = ", alpha_star, "beta =", beta_star)) 
+
+# histogram(alpha_emp)
+# histogram(beta_emp)
+# mean(alpha_emp)
+# alpha_star
+# mean(beta_emp)
+# beta_star
+
+cdf_obs <- numeric(n)
+for (i in 1:n){
+  s <- data[i]
+  cdf_obs[i] <- (pbeta(s, shape1 = alpha_star, shape2 = beta_star))
+}
+
+histogram(cdf_obs)
+# ddst.uniform.test(cdf_obs, compute.p = TRUE)
+
+g <- visual(dataset, alpha_star, beta_star)
+g + labs(title = "Greedy - m=100, p1=0.8, p2=0.01")
+
+```
+
+
+
+
+

@@ -1,0 +1,916 @@
+---
+title: "Fit_Test_Proportion_Studies"
+author: "Lan Tao"
+date: "2023-10-26"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r include=FALSE, echo=TRUE}
+library(mosaic)
+library(ggplot2)
+library(dplyr)
+library(writexl)
+library(haven)
+library(readxl)
+library(gtable)
+require(gridExtra)
+library(wesanderson)
+library(betareg)
+# library(cli)
+library(fitdistrplus)
+library(aods3)
+library(cmstatr)
+```
+
+
+## read data
+
+```{r, include=FALSE}
+
+num_greedy_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_11.xlsx")
+num_patient_05_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_11.xlsx")
+
+num_greedy_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_12.xlsx")
+num_patient_05_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_12.xlsx")
+
+num_greedy_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_13.xlsx")
+num_patient_05_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_13.xlsx")
+
+num_greedy_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m30_pr2_14.xlsx")
+num_patient_05_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m30_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_11.xlsx")
+num_patient_05_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_11.xlsx")
+
+num_greedy_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_12.xlsx")
+num_patient_05_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_12.xlsx")
+
+num_greedy_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_13.xlsx")
+num_patient_05_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_13.xlsx")
+
+num_greedy_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m50_pr2_14.xlsx")
+num_patient_05_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m50_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_11.xlsx")
+num_patient_05_m70_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_11.xlsx")
+
+num_greedy_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_12.xlsx")
+num_patient_05_m70_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_12.xlsx")
+
+num_greedy_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_13.xlsx")
+num_patient_05_m70_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_13.xlsx")
+
+num_greedy_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m70_pr2_14.xlsx")
+num_patient_05_m70_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m70_pr2_14.xlsx")
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_11.xlsx")
+num_patient_05_m100_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_11.xlsx")
+
+num_greedy_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_12.xlsx")
+num_patient_05_m100_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_12.xlsx")
+
+num_greedy_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_13.xlsx")
+num_patient_05_m100_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_13.xlsx")
+
+num_greedy_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_05_m100_pr2_14.xlsx")
+num_patient_05_m100_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_05_m100_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_11.xlsx")
+num_patient_06_m50_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_11.xlsx")
+
+num_greedy_06_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_12.xlsx")
+num_patient_06_m50_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_12.xlsx")
+
+num_greedy_06_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_13.xlsx")
+num_patient_06_m50_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_13.xlsx")
+
+num_greedy_06_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m50_pr2_14.xlsx")
+num_patient_06_m50_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m50_pr2_14.xlsx")
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_11.xlsx")
+num_patient_06_m30_pr2_11<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_11.xlsx")
+
+num_greedy_06_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_12.xlsx")
+num_patient_06_m30_pr2_12<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_12.xlsx")
+
+num_greedy_06_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_13.xlsx")
+num_patient_06_m30_pr2_13<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_13.xlsx")
+
+num_greedy_06_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_greedy_06_m30_pr2_14.xlsx")
+num_patient_06_m30_pr2_14<-read_excel("~/Desktop/Matching Market/Simulation/Simulation_0510/Simulation_Result_Data/num_patient_06_m30_pr2_14.xlsx")
+
+```
+
+## update data
+
+
+```{r, include=FALSE}
+# write a function to update the data frame s.t. s=min{n_A/n_B, n_B/n_A}
+
+update_dta<-function(dta){
+  new_dta<-dta
+  new_dta$prop_2<-new_dta$num_B/new_dta$num_A
+  prop_s<-apply(new_dta[,5:6],1,min)
+  new_dta$prop_s<-as.double(prop_s)
+  new_dta
+}
+
+```
+
+
+```{r, include=FALSE}
+
+num_greedy_05_m30_pr2_11<-update_dta(num_greedy_05_m30_pr2_11)
+num_patient_05_m30_pr2_11<-update_dta(num_patient_05_m30_pr2_11)
+
+num_greedy_05_m30_pr2_12<-update_dta(num_greedy_05_m30_pr2_12)
+num_patient_05_m30_pr2_12<-update_dta(num_patient_05_m30_pr2_12)
+
+num_greedy_05_m30_pr2_13<-update_dta(num_greedy_05_m30_pr2_13)
+num_patient_05_m30_pr2_13<-update_dta(num_patient_05_m30_pr2_13)
+
+num_greedy_05_m30_pr2_14<-update_dta(num_greedy_05_m30_pr2_14)
+num_patient_05_m30_pr2_14<-update_dta(num_patient_05_m30_pr2_14)
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m50_pr2_11<-update_dta(num_greedy_05_m50_pr2_11)
+num_patient_05_m50_pr2_11<-update_dta(num_patient_05_m50_pr2_11)
+
+num_greedy_05_m50_pr2_12<-update_dta(num_greedy_05_m50_pr2_12)
+num_patient_05_m50_pr2_12<-update_dta(num_patient_05_m50_pr2_12)
+
+num_greedy_05_m50_pr2_13<-update_dta(num_greedy_05_m50_pr2_13)
+num_patient_05_m50_pr2_13<-update_dta(num_patient_05_m50_pr2_13)
+
+num_greedy_05_m50_pr2_14<-update_dta(num_greedy_05_m50_pr2_14)
+num_patient_05_m50_pr2_14<-update_dta(num_patient_05_m50_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m70_pr2_11<-update_dta(num_greedy_05_m70_pr2_11)
+num_patient_05_m70_pr2_11<-update_dta(num_patient_05_m70_pr2_11)
+
+num_greedy_05_m70_pr2_12<-update_dta(num_greedy_05_m70_pr2_12)
+num_patient_05_m70_pr2_12<-update_dta(num_patient_05_m70_pr2_12)
+
+num_greedy_05_m70_pr2_13<-update_dta(num_greedy_05_m70_pr2_13)
+num_patient_05_m70_pr2_13<-update_dta(num_patient_05_m70_pr2_13)
+
+num_greedy_05_m70_pr2_14<-update_dta(num_greedy_05_m70_pr2_14)
+num_patient_05_m70_pr2_14<-update_dta(num_patient_05_m70_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_05_m100_pr2_11<-update_dta(num_greedy_05_m100_pr2_11)
+num_patient_05_m100_pr2_11<-update_dta(num_patient_05_m100_pr2_11)
+
+num_greedy_05_m100_pr2_12<-update_dta(num_greedy_05_m100_pr2_12)
+num_patient_05_m100_pr2_12<-update_dta(num_patient_05_m100_pr2_12)
+
+num_greedy_05_m100_pr2_13<-update_dta(num_greedy_05_m100_pr2_13)
+num_patient_05_m100_pr2_13<-update_dta(num_patient_05_m100_pr2_13)
+
+num_greedy_05_m100_pr2_14<-update_dta(num_greedy_05_m100_pr2_14)
+num_patient_05_m100_pr2_14<-update_dta(num_patient_05_m100_pr2_14)
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m30_pr2_11<-update_dta(num_greedy_06_m30_pr2_11)
+num_patient_06_m30_pr2_11<-update_dta(num_patient_06_m30_pr2_11)
+
+num_greedy_06_m30_pr2_12<-update_dta(num_greedy_06_m30_pr2_12)
+num_patient_06_m30_pr2_12<-update_dta(num_patient_06_m30_pr2_12)
+
+num_greedy_06_m30_pr2_13<-update_dta(num_greedy_06_m30_pr2_13)
+num_patient_06_m30_pr2_13<-update_dta(num_patient_06_m30_pr2_13)
+
+num_greedy_06_m30_pr2_14<-update_dta(num_greedy_06_m30_pr2_14)
+num_patient_06_m30_pr2_14<-update_dta(num_patient_06_m30_pr2_14)
+
+
+#------------------------------------------------------------------------------------
+
+num_greedy_06_m50_pr2_11<-update_dta(num_greedy_06_m50_pr2_11)
+num_patient_06_m50_pr2_11<-update_dta(num_patient_06_m50_pr2_11)
+
+num_greedy_06_m50_pr2_12<-update_dta(num_greedy_06_m50_pr2_12)
+num_patient_06_m50_pr2_12<-update_dta(num_patient_06_m50_pr2_12)
+
+num_greedy_06_m50_pr2_13<-update_dta(num_greedy_06_m50_pr2_13)
+num_patient_06_m50_pr2_13<-update_dta(num_patient_06_m50_pr2_13)
+
+num_greedy_06_m50_pr2_14<-update_dta(num_greedy_06_m50_pr2_14)
+num_patient_06_m50_pr2_14<-update_dta(num_patient_06_m50_pr2_14)
+
+```
+
+
+## Greedy Algorithm
+
+### Greedy - group 11 (m=70, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=70, pa=0.5, p1=0.03, p2=0.01, pr=2
+data <- num_greedy_05_m70_pr2_11$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m70_pr2_11[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=70,p1=0.03,p2=0.01")+
+  theme_bw()
+```
+
+
+### Greedy - group 12 (m=70, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <- num_greedy_05_m70_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m70_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=70,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+
+### Greedy - group 13 (m=70, pa=0.5, p1=0.1, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=70, pa=0.5, p1=0.1, p2=0.01, pr=2
+data <- num_greedy_05_m70_pr2_13$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m70_pr2_13[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=70,p1=0.1,p2=0.01")+
+  theme_bw()
+```
+
+
+### Greedy - group 14 (m=70, pa=0.5, p1=0.8, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=70, pa=0.5, p1=0.8, p2=0.01, pr=2
+data <- num_greedy_05_m70_pr2_14$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m70_pr2_14[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=70,p1=0.8,p2=0.01")+
+  theme_bw()
+```
+
+
+
+### Greedy - group 21 (m=100, pa=0.5, p1=0.03, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=100, pa=0.5, p1=0.03, p2=0.01, pr=2
+data <- num_greedy_05_m100_pr2_11$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m100_pr2_11[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=100,p1=0.03,p2=0.01")+
+  theme_bw()
+```
+
+
+### Greedy - group 22 (m=100, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=100, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <- num_greedy_05_m100_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m100_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=100,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+### Greedy - group 23 (m=100, pa=0.5, p1=0.1, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=100, pa=0.5, p1=0.1, p2=0.01, pr=2
+data <- num_greedy_05_m100_pr2_13$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m100_pr2_13[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=100,p1=0.1,p2=0.01")+
+  theme_bw()
+```
+
+
+### Greedy - group 24 (m=100, pa=0.5, p1=0.8, p2=0.01, pr=2)
+
+```{r}
+# Greedy m=100, pa=0.5, p1=0.8, p2=0.01, pr=2
+data <- num_greedy_05_m100_pr2_14$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m100_pr2_14[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=100,p1=0.8,p2=0.01")+
+  theme_bw()
+```
+
+### Patient - group 11 (m=70, pa=0.5, p1=0.03, p2=0.01, pr=2)
+
+```{r}
+# Patient m=70, pa=0.5, p1=0.03, p2=0.01, pr=2
+data <- num_patient_05_m70_pr2_11$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m70_pr2_11[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=70,p1=0.03,p2=0.01")+
+  theme_bw()
+```
+### Patient - group 12 (m=70, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Patient m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <- num_patient_05_m70_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m70_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=70,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+### Patient - group 13 (m=70, pa=0.5, p1=0.1, p2=0.01, pr=2)
+
+```{r}
+# Patient m=70, pa=0.5, p1=0.1, p2=0.01, pr=2
+data <- num_patient_05_m70_pr2_13$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m70_pr2_13[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=70,p1=0.1,p2=0.01")+
+  theme_bw()
+```
+
+### Patient - group 14 (m=70, pa=0.8, p1=0.03, p2=0.01, pr=2)
+
+```{r}
+# Patient m=70, pa=0.5, p1=0.8, p2=0.01, pr=2
+data <- num_patient_05_m70_pr2_14$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m70_pr2_14[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=70,p1=0.8,p2=0.01")+
+  theme_bw()
+```
+
+### Patient - group 21 (m=100, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Patient m=100, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <- num_patient_05_m100_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m100_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=100,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+
+### Patient - group 22 (m=100, pa=0.5, p1=0.05, p2=0.01, pr=2)
+
+```{r}
+# Patient m=100, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <- num_patient_05_m100_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+### Kolmogorov-Smirnov Tests
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(x_1, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+
+# Visual inspection
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_patient_05_m100_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=100,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+
+
+
+### ---------------------------------------------------------
+
+
+### Plot - group 1 
+```{r}
+# Greedy m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <-num_greedy_05_m70_pr2_12$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+# plot the beta distribution gamma(alpha, beta)
+
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+ggplot(num_greedy_05_m70_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=70,p1=0.05,p2=0.01")+
+  theme_bw()
+```
+
+
+### Plot - group 2
+
+```{r}
+# Greedy m=100, pa=0.5, p1=0.1, p2=0.01, pr=2
+data <-num_greedy_05_m100_pr2_13$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+# plot the beta distribution gamma(alpha, beta)
+
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+
+ggplot(num_greedy_05_m100_pr2_13[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Greedy - m=100,p1=0.1,p2=0.01")+
+  theme_bw()
+
+```
+
+
+### Kolmogorov-Smirnov Tests
+
+```{r}
+# x_1 <- data
+# x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(data, "pbeta", alpha, beta)
+```
+
+## Patient Algorithm
+
+### Plot - group 1 
+
+```{r}
+# Patient m=70, pa=0.5, p1=0.05, p2=0.01, pr=2
+data <-num_patient_05_m70_pr2_12$prop_s
+
+exp_s <- mean(data[500:1000], na.rm = TRUE)
+var_s <- var(data[500:1000], na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+# plot the beta distribution gamma(alpha, beta)
+
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+# Visual Inspection
+ggplot(num_patient_05_m70_pr2_12[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=70,p1=0.05,p2=0.01")+
+  theme_bw()
+
+```
+
+### Kolmogorov-Smirnov Tests - group 1 
+
+```{r}
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+# ks.test(data, "pbeta", alpha, beta)
+ks.test(x_1, x_2)
+
+
+```
+
+
+
+
+### Plot - group 2
+```{r}
+# Patient m=100, pa=0.5, p1=0.1, p2=0.01, pr=2
+data <-num_patient_05_m100_pr2_13$prop_s
+
+exp_s<-mean(data[500:1000], na.rm = TRUE)
+var_s<-var(data[500:1000],na.rm = TRUE)
+
+alpha = exp_s*(exp_s*(1-exp_s)/var_s-1)
+beta  = (1-exp_s)*(exp_s*(1-exp_s)/var_s-1)
+
+alpha
+beta
+
+# plot the beta distribution gamma(alpha, beta)
+
+x <- seq(0,1,by=0.001)
+fitted_val <- dbeta(x,shape1=alpha,shape2=beta)
+
+fitted_data<-data.frame(x,fitted_val)
+
+# Visual Inspection
+ggplot(num_patient_05_m100_pr2_13[800:1000,], aes(x=prop_s)) +
+  geom_histogram(aes(y=..density..), colour="black", fill="white")+
+  geom_density(alpha=.2, colour="palevioletred1",fill="palevioletred1")+
+  geom_point(data = fitted_data, aes(x = x, y = fitted_val), colour = "cornflowerblue",size=0.1,show.legend = TRUE)+
+  labs(title = "Patient - m=100,p1=0.1,p2=0.01")+
+  theme_bw()
+
+```
+
+### Kolmogorov-Smirnov Tests - group 2
+```{r}
+x_1 <- data
+x_2 <- rbeta(n = 501, shape1 = alpha, shape2 = beta)
+
+ks.test(data, "pbeta", alpha, beta)
+# ks.test(x_1, x_2)
+```
+
+K-S test problems: the true $\alpha$ and $\beta$ values are unknown, and the $\alpha$ and $\beta$ values that we put into the K-S test are MLE from data, so the results of the above goodness of fit test demonstrates that the density of data does not follow beta distribution with the parameters $\alpha_{MLE}$ and $\beta_{MLE}$.
+
+If we do know the true values of $\alpha$ and $\beta$, then the log-likelihood would be exactly following $\chi^2$ distribution; if we don't know the true values of $\alpha$ and $\beta$, and we replace them with MLE, then the distribution of log-likelihood would not be $\chi^2$ distribution. So we need to examine how good the distribution is close to $\chi^2$ distribution.
+
+
+
+
