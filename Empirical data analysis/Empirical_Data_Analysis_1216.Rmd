@@ -1,0 +1,311 @@
+---
+title: "Empirical_Data_Analysis"
+author: "Lan Tao"
+date: "2023-10-31"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(tidyverse)
+library(mosaic)
+library(writexl)
+library(haven)
+library(readxl)
+setwd("/Users/brigitta/Desktop/Matching Market/Empirical data analysis")
+```
+
+```{r data-loading}
+## Data reading
+load("market_data.RData")
+```
+
+
+```{r helper-function}
+# comparing blood type + HLA compatibility for the same type agents
+abo_hla_compare_p1 <- function(x, y, hla_criteria = 3){
+  # comparing x_patient to y_donor
+  # abo
+  if (y$ABO_DON == "O" | x$ABO == "AB" | y$ABO_DON == x$ABO){
+    abo_test_1 = TRUE
+  }else{
+    abo_test_1 = FALSE
+  }
+  # hla
+  A1_MAT =  (x$RA1 == y$RDA1)
+  A2_MAT =  (x$RA2 == y$RDA2)
+  B1_MAT =  (x$RB1 == y$RDB1)
+  B2_MAT =  (x$RB2 == y$RDB2)
+  DR1_MAT =  (x$RDR1 == y$RDDR1)
+  DR2_MAT =  (x$RDR2 == y$RDDR2)
+  num_Antigen_MAT = A1_MAT + A2_MAT + B1_MAT + B2_MAT + DR1_MAT + DR2_MAT
+  hla_test_1 = (num_Antigen_MAT >= hla_criteria)
+  
+  # comparing y_patient to x_donor
+  # abo
+  if (x$ABO_DON == "O" | y$ABO == "AB" | x$ABO_DON == y$ABO){
+    abo_test_2 = TRUE
+  }else{
+    abo_test_2 = FALSE
+  }
+  # hla
+  A1_MAT =  (y$RA1 == x$RDA1)
+  A2_MAT =  (y$RA2 == x$RDA2)
+  B1_MAT =  (y$RB1 == x$RDB1)
+  B2_MAT =  (y$RB2 == x$RDB2)
+  DR1_MAT =  (y$RDR1 == x$RDDR1)
+  DR2_MAT =  (y$RDR2 == x$RDDR2)
+  num_Antigen_MAT = A1_MAT + A2_MAT + B1_MAT + B2_MAT + DR1_MAT + DR2_MAT
+  hla_test_2 = (num_Antigen_MAT >= hla_criteria)  
+  
+  # return test result
+  test_result = c(abo_test_1, hla_test_1, abo_test_2, hla_test_2)
+  test_result
+}
+
+
+
+
+# comparing blood type + HLA compatibility for the different type agents
+abo_hla_compare_p2 <- function(x, y, hla_criteria = 6){
+  # comparing x_patient to y_donor
+  # abo
+  if (y$ABO_DON == "O" | x$ABO == "AB" | y$ABO_DON == x$ABO){
+    abo_test_1 = TRUE
+  }else{
+    abo_test_1 = FALSE
+  }
+  # hla
+  A1_MAT =  (x$RA1 == y$RDA1)
+  A2_MAT =  (x$RA2 == y$RDA2)
+  B1_MAT =  (x$RB1 == y$RDB1)
+  B2_MAT =  (x$RB2 == y$RDB2)
+  DR1_MAT =  (x$RDR1 == y$RDDR1)
+  DR2_MAT =  (x$RDR2 == y$RDDR2)
+  num_Antigen_MAT = A1_MAT + A2_MAT + B1_MAT + B2_MAT + DR1_MAT + DR2_MAT
+  hla_test_1 = (num_Antigen_MAT >= hla_criteria)
+  
+  # comparing y_patient to x_donor
+  # abo
+  if (x$ABO_DON == "O" | y$ABO == "AB" | x$ABO_DON == y$ABO){
+    abo_test_2 = TRUE
+  }else{
+    abo_test_2 = FALSE
+  }
+  # hla
+  A1_MAT =  (y$RA1 == x$RDA1)
+  A2_MAT =  (y$RA2 == x$RDA2)
+  B1_MAT =  (y$RB1 == x$RDB1)
+  B2_MAT =  (y$RB2 == x$RDB2)
+  DR1_MAT =  (y$RDR1 == x$RDDR1)
+  DR2_MAT =  (y$RDR2 == x$RDDR2)
+  num_Antigen_MAT = A1_MAT + A2_MAT + B1_MAT + B2_MAT + DR1_MAT + DR2_MAT
+  hla_test_2 = (num_Antigen_MAT >= hla_criteria)  
+  
+  # return test result
+  test_result = c(abo_test_1, hla_test_1, abo_test_2, hla_test_2)
+  test_result
+}
+
+```
+
+
+```{r market-generation}
+new_agents_generation <- function (data, T, m, pr) {
+  new_agents <- vector(mode = "list", length = T)
+  for (t in 2:T){
+    new <- rpois(1, m)   #the number of new coming agents during [t,t+1]
+    if (new !=0){
+      sample_ind <- sample(nrow(data), new)
+      new_agents_current <- market_data[sample_ind, ]
+      new_agents_current <- new_agents_current %>%
+        mutate(new_ind = c(1:new)) %>%
+        mutate(new_type = case_when(
+          ETHCAT_match == "Recipient: White Donor: White" ~ "A",
+          ETHCAT_match == "Recipient: Black Donor: Black" ~ "B"
+        )) %>%
+        mutate(new_perishing_time = rpois(new, pr)) %>%
+        mutate(new_id = paste(t, new_ind, sep='&'))
+      new_agents[[t]] <- new_agents_current
+     }
+  }
+  new_agents
+}
+
+```
+
+
+```{r Greedy-algorithm}
+greedy <- function(new_agents, m, pr = 1){
+  T = length(new_agents)
+  pool <- data.frame(matrix(ncol = ncol(new_agents[[2]]), nrow = 0))
+  colnames(pool) <- colnames(new_agents[[2]])
+  
+  # initializing
+  pool_A <- filter(pool, new_type=="A")
+  pool_B <- filter(pool, new_type=="B")
+  num_A <- vector(length=T)
+  num_A[1] <- nrow(pool_A)
+  num_B <- vector(length=T)
+  num_B[1] <- nrow(pool_B)
+  num_perishing <- vector(length=T)  #the number of perishing agents by time t
+  num_perishing[1] <- 0
+  whole_pool_size <- vector(length=T)
+  whole_pool_size[1] <- 0
+  
+  
+  for (t in 2:T){
+    pool$new_perishing_time <- pool$new_perishing_time - 1
+    
+    ## new agents coming
+    new_coming <- new_agents[[t]]
+    new <- nrow(new_coming)
+    # print(new)
+    whole_pool_size[t] = whole_pool_size[t-1] + new
+    
+    ## agents matching
+    for (i in 1:new){
+      mat_flag = FALSE
+      pool_size = nrow(pool)
+      if (pool_size >= 1){
+        j = 0
+        while(j < pool_size && !mat_flag){
+          j = j + 1
+          ## comparing blood type + HLA compatibility 
+          if (new_coming[i, ]$new_type == pool[j, ]$new_type){
+            test_result <- abo_hla_compare_p1(new_coming[i, ], pool[j, ], hla_criteria = 3)
+          }else{
+            test_result <- abo_hla_compare_p2(new_coming[i, ], pool[j, ], hla_criteria = 6)
+          }
+          mat_flag = all(test_result)
+        }
+      }
+      
+      ## agents departing
+      if (mat_flag){
+        ## successful matching, then one agent leaves the pool
+        pool <- pool[-j, ]
+      }else{
+        ## fail matching, then one new agent comes to the pool
+        pool <- rbind(pool, new_coming[i, ])
+      }
+    }
+    
+    ## agents perishing
+    num_perishing[t] <- nrow(filter(pool, new_perishing_time==0)) + num_perishing[t-1]
+    pool <- pool[!pool$new_perishing_time==0, ]
+    pool_A <- filter(pool, new_type=="A")
+    num_A[t] <- nrow(pool_A)
+    pool_B <- filter(pool, new_type=="B")
+    num_B[t] <- nrow(pool_B) 
+  }
+  
+  num_pool <- num_A + num_B
+  loss <- num_perishing / whole_pool_size
+  num <- data.frame(num_pool, num_A, num_B, num_perishing, whole_pool_size, loss)
+  num$prop = num_A / num_B   #the proportion of v_A to v_B
+  return(num)
+}
+```
+
+
+```{r Patient-algorithm}
+patient <- function(new_agents, m, pr = 1){
+  T = length(new_agents)
+  pool <- data.frame(matrix(ncol = ncol(new_agents[[2]]), nrow = 0))
+  colnames(pool) <- colnames(new_agents[[2]])
+  
+  # initializing
+  pool_A <- filter(pool, new_type=="A")
+  pool_B <- filter(pool, new_type=="B")
+  num_A <- vector(length=T)
+  num_A[1] <- nrow(pool_A)
+  num_B <- vector(length=T)
+  num_B[1] <- nrow(pool_B)
+  num_perishing <- vector(length=T)  #the number of perishing agents by time t
+  num_perishing[1] <- 0
+  whole_pool_size <- vector(length=T)
+  whole_pool_size[1] <- nrow(pool)
+  
+  
+  for (t in 2:T){
+    pool$new_perishing_time <- pool$new_perishing_time - 1
+    
+    ## new agents coming
+    new_coming <- new_agents[[t]]
+    new <- nrow(new_coming)
+    pool <- rbind(pool,new_coming)
+    whole_pool_size[t] <- whole_pool_size[t-1] + new
+    
+    ## agents matching
+    critical <- filter(pool, new_perishing_time==0)
+    num_perishing[t] <- num_perishing[t-1]
+    num_critical <- nrow(critical)
+    # print(num_critical)
+    if (num_critical != 0){
+      i = 1
+      while (i <= num_critical){
+        mat_flag = FALSE
+        pool_size = nrow(pool)
+        j = 0
+        while( j < pool_size && !mat_flag){
+          j= j + 1
+          # comparing blood type + HLA compatibility 
+          if (critical[i, ]$new_type == pool[j, ]$new_type){
+            test_result <- abo_hla_compare_p1(critical[i, ], pool[j, ], hla_criteria = 3)
+          }else{
+            test_result <- abo_hla_compare_p2(critical[i, ], pool[j, ], hla_criteria = 6)
+          }
+          mat_flag = all(test_result)
+        }
+        # flag[[t]][i] = mat_flag
+        ## agents departing
+        if (mat_flag){
+          ## successful matching, then two agent leaves the pool
+          pool <- pool[-j, ]
+          pool <- pool[pool$new_id!= critical[i, "new_id"], ]
+          if (pool[j, ]$new_perishing_time == 0){
+            ind <- which(critical$new_id == pool[j, ]$new_id)
+            critical <- critical[-ind, ]
+            num_critical = num_critical - 1
+          }
+        }else{
+          ## fail matching, then only one critical agent perishes the pool
+          pool <- pool[pool$new_id!=critical[i, "new_id"], ]
+          num_perishing[t] = num_perishing[t] + 1
+        }
+        i = i + 1
+      }
+    }
+    
+    pool <- pool[pool$new_perishing_time!=0, ]
+    pool_A <- filter(pool, new_type=="A")
+    num_A[t] <- nrow(pool_A)
+    pool_B <- filter(pool, new_type=="B")
+    num_B[t] <- nrow(pool_B) 
+  }
+  
+  num_pool <- num_A + num_B
+  loss <- num_perishing / whole_pool_size
+  num <- data.frame(num_pool, num_A, num_B, num_perishing, whole_pool_size, loss)
+  num$prop = num_A / num_B   #the proportion of v_A to v_B
+  return(num)
+}
+```
+
+
+```{r testing}
+
+T = 10 # T: the number of time points
+pr = 1 # pr: perishing rate for each agent
+m = 20 # m: the Poisson rate at which agents arrive at the market
+set.seed(1240)
+
+new_agents <- new_agents_generation(market_data, T, m, pr)
+# View(new_agents)
+
+greedy(new_agents, m, pr = 1)
+patient(new_agents, m, pr = 1)
+```
+

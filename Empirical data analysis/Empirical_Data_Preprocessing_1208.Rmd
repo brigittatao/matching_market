@@ -104,6 +104,7 @@ load("kidney_data.RData")
 ```
 
 
+
 ## Data preview
 ```{r ethcal-two-types}
 ## Subsetting only black, white recipients and donors 
@@ -224,7 +225,7 @@ levels(as.factor(kidney_data_abo$RDDR2))
 
 ## Data preprocessing
 
-```{r}
+```{r race-abo-subsetting}
 kidney_data_subset <- kidney_data %>% 
   filter(ETHCAT %in% c("Black", "White")) %>%
   filter(ETHCAT_DON %in% c("Black", "White")) %>%
@@ -237,7 +238,110 @@ kidney_data_subset <- kidney_data_subset %>%
   filter(ABO %in% c("A", "B", "AB", "O")) %>%
   filter(ABO_DON %in% c("A", "B", "AB", "O"))
   
-## filter those HLA incompatible or blood-type incompatible to form possible pairs for kidney exchange market
+```
 
 
+### filter those HLA incompatible or blood-type incompatible to form possible pairs for kidney exchange market
+```{r Comparing-Antigen}
+## Recipient antigen A1/A2/B1/B2/DR1/DR2
+# table(kidney_data_subset$RA1)
+# table(kidney_data_subset$RA2)
+# table(kidney_data_subset$RB1)
+# table(kidney_data_subset$RB2)
+# table(kidney_data_subset$RDR1)
+# table(kidney_data_subset$RDR2)
+# levels(as.factor(kidney_data_subset$RA1))
+# levels(as.factor(kidney_data_subset$RA2))
+# levels(as.factor(kidney_data_subset$RB1))
+# levels(as.factor(kidney_data_subset$RB2))
+# levels(as.factor(kidney_data_subset$RDR1))
+# levels(as.factor(kidney_data_subset$RDR2))
+
+## Donor antigen A1/A2/B1/B2/DR1/DR2
+# table(kidney_data_subset$RDA1)
+# table(kidney_data_subset$RDA2)
+# table(kidney_data_subset$RDB1)
+# table(kidney_data_subset$RDB2)
+# table(kidney_data_subset$RDDR1)
+# table(kidney_data_subset$RDDR2)
+# levels(as.factor(kidney_data_subset$RDA1))
+# levels(as.factor(kidney_data_subset$RDA2))
+# levels(as.factor(kidney_data_subset$RDB1))
+# levels(as.factor(kidney_data_subset$RDB2))
+# levels(as.factor(kidney_data_subset$RDDR1))
+# levels(as.factor(kidney_data_subset$RDDR2))
+
+
+## remove rows without sufficient Antigen information 
+kidney_data_subset <- kidney_data_subset %>%
+  filter(RA1 != ".") %>%
+  filter(RA2 != ".") %>%
+  filter(RB1 != ".") %>%
+  filter(RB2 != ".") %>%
+  filter(RDR1 != ".") %>%
+  filter(RDR2 != ".") %>%
+  filter(RDA1 != ".") %>%
+  filter(RDA2 != ".") %>%
+  filter(RDB1 != ".") %>%
+  filter(RDB2 != ".") %>%
+  filter(RDDR1 != ".") %>%
+  filter(RDDR2 != ".") 
+
+
+## count the number of the same antigens of each pair of recipient-donor
+kidney_data_subset <- kidney_data_subset %>%
+  mutate(A1_MAT =  (RA1 == RDA1))%>%
+  mutate(A2_MAT =  (RA2 == RDA2)) %>%
+  mutate(B1_MAT =  (RB1 == RDB1)) %>%
+  mutate(B2_MAT =  (RB2 == RDB2)) %>%
+  mutate(DR1_MAT =  (RDR1 == RDDR1)) %>%
+  mutate(DR2_MAT =  (RDR2 == RDDR2)) %>%
+  mutate(num_Antigen_MAT = A1_MAT + A2_MAT + B1_MAT + B2_MAT + DR1_MAT + DR2_MAT)
+
+table(kidney_data_subset$num_Antigen_MAT)
+
+## assumption: for the same race of pairs, having more than three identical antigens is identified to be HLA compatible
+kidney_data_subset <- kidney_data_subset %>%
+  mutate(Antigen_MAT =  case_when(
+    num_Antigen_MAT >=3 ~ "Compatible",
+    num_Antigen_MAT <3  ~ "Incompatible"
+  ))
+
+table(kidney_data_subset$Antigen_MAT)
+
+```
+
+
+```{r ABO-HLA-Compatibility}
+
+kidney_data_subset <- kidney_data_subset %>%
+  mutate(Compatibility = case_when(
+    Antigen_MAT == "Compatible" & ABO_MAT == "Compatible" ~ "Compatible",
+    Antigen_MAT == "Compatible" & ABO_MAT == "Identical" ~ "Compatible",
+    .default = "Incompatible"
+  )
+  )
+
+table(kidney_data_subset$Compatibility)
+
+```
+
+
+```{r dataset-for-kidney-exchange}
+market_data <- kidney_data_subset %>%
+  filter(Compatibility == "Incompatible")%>%
+  select(ETHCAT, ETHCAT_DON, ETHCAT_match,
+         ABO, ABO_DON, ABO_MAT,
+         RA1, RA2, RB1, RB2, RDR1, RDR2,
+         RDA1, RDA2, RDB1, RDB2, RDDR1, RDDR2,
+         A1_MAT, A2_MAT, B1_MAT, B2_MAT, DR1_MAT, DR2_MAT,
+         num_Antigen_MAT, Antigen_MAT,
+         Compatibility
+         )
+```
+
+
+```{r data-saving}
+save(market_data, file = "market_data.RData")
+load("market_data.RData")
 ```
